@@ -4,13 +4,8 @@ Uses sentence-transformers for embedding generation
 """
 import numpy as np
 
-# Try to import sentence_transformers
-try:
-    from sentence_transformers import SentenceTransformer
-    SENTENCE_TRANSFORMERS_AVAILABLE = True
-except ImportError:
-    SENTENCE_TRANSFORMERS_AVAILABLE = False
-    print("Warning: sentence-transformers not installed. RAG features will be limited.")
+# Sentence transformers are lazy-loaded to speed up application startup
+SENTENCE_TRANSFORMERS_AVAILABLE = True
 
 
 class TextEmbedder:
@@ -34,6 +29,7 @@ class TextEmbedder:
             return
         
         try:
+            from sentence_transformers import SentenceTransformer
             self.model = SentenceTransformer(self.model_name)
             print(f"Loaded embedding model: {self.model_name}")
         except Exception as e:

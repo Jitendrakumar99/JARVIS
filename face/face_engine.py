@@ -5,16 +5,9 @@ Handles face detection, embedding extraction, and matching
 import numpy as np
 import os
 
-# Try to import DeepFace (easier than face_recognition)
-try:
-    from deepface import DeepFace
-    DEEPFACE_AVAILABLE = True
-    FACE_RECOGNITION_AVAILABLE = True  # For compatibility
-    print("DeepFace loaded successfully!")
-except ImportError:
-    DEEPFACE_AVAILABLE = False
-    FACE_RECOGNITION_AVAILABLE = False
-    print("Warning: DeepFace not installed. Run: pip install deepface tf-keras")
+# DeepFace is lazy-loaded inside methods to speed up application startup
+DEEPFACE_AVAILABLE = True # Assume available since it's in requirements.txt
+FACE_RECOGNITION_AVAILABLE = True  
 
 
 class FaceEngine:
@@ -40,6 +33,7 @@ class FaceEngine:
             return None
         
         try:
+            from deepface import DeepFace
             # Get embedding using DeepFace
             embedding_objs = DeepFace.represent(
                 img_path=image_path,
@@ -156,6 +150,7 @@ class FaceEngine:
             return {"verified": False, "distance": 1.0}
         
         try:
+            from deepface import DeepFace
             result = DeepFace.verify(
                 img1_path=img1_path,
                 img2_path=img2_path,
@@ -178,6 +173,7 @@ class FaceEngine:
             return []
         
         try:
+            from deepface import DeepFace
             faces = DeepFace.extract_faces(
                 img_path=image_path,
                 enforce_detection=False
