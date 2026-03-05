@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}404 - Page Not Found{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 1rem;">
+    <div
+        style="font-size: 8rem; font-weight: 800; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+        404
+    </div>
+    <h1 style="margin-bottom: 1rem;">Page Not Found</h1>
+    <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto 2rem;">
+        Oops! The page you're looking for doesn't exist or has been moved.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-home"></i> Go Home
+        </a>
+        <a href="{{ url_for('student.explore') }}" class="btn btn-secondary btn-lg">
+            <i class="fas fa-search"></i> Explore Students
+        </a>
+    </div>
+</div>
+{% endblock %}

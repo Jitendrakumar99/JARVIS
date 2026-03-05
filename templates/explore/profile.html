@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.name }} | Student Profile{% endblock %}
+
+{% block content %}
+<div style="max-width: 1000px; margin: 0 auto; padding-bottom: 4rem;">
+    <!-- Modern Header Profile Card -->
+    <div class="jarvis-card" style="padding: 0; margin-bottom: 2rem; overflow: hidden; border: none;">
+        <div style="height: 160px; background: var(--grad-primary); position: relative;">
+            <div
+                style="position: absolute; bottom: -60px; left: 3rem; width: 140px; height: 140px; border-radius: var(--radius-xl); border: 6px solid var(--bg-card); overflow: hidden; background: var(--bg-page); box-shadow: var(--shadow-lg);">
+                {% if student.image_path %}
+                <img src="{{ url_for('static', filename=student.image_path) }}" alt="{{ student.name }}"
+                    style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                <div
+                    style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; background: var(--bg-page); font-weight: 800; color: var(--primary);">
+                    {{ student.name[0] }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div
+            style="padding: 4.5rem 3rem 2rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap;">
+            <div>
+                <h1
+                    style="font-size: 2.25rem; margin-bottom: 0.5rem; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                    {{ student.name }}
+                </h1>
+                <p style="color: var(--text-muted); font-size: 1.1rem; font-weight: 500;">
+                    {{ student.department }} • Year {{ student.year }}
+                </p>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem; color: var(--text-dim); font-size: 0.9rem;">
+                    <span><i class="fas fa-barcode"></i> {{ student.roll_no }}</span>
+                    <span><i class="fas fa-envelope"></i> {{ student.email or 'No email' }}</span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <a href="{{ url_for('student.download_pdf', id=student.id) }}" class="btn btn-primary"
+                    style="padding: 0.75rem 1.5rem;">
+                    <i class="fas fa-file-pdf"></i> Generate Report
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Expert Skills -->
+            {% if student.skills %}
+            <div class="jarvis-card" style="padding: 2rem;">
+                <h3
+                    style="font-size: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-microchip" style="color: var(--primary);"></i> Technical Expertise
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.75rem;">
+                    {% for skill in student.skills %}
+                    <span
+                        style="background: rgba(99, 102, 241, 0.08); color: var(--primary); font-weight: 600; font-size: 0.85rem; padding: 0.5rem 1.25rem; border-radius: var(--radius-md); border: 1px solid rgba(99, 102, 241, 0.1);">
+                        {{ skill }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Projects & Portfolio -->
+            {% if student.projects or student.internships %}
+            <div class="jarvis-card" style="padding: 2rem;">
+                <h3
+                    style="font-size: 1.25rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                    <i class="fas fa-rocket" style="color: var(--secondary);"></i> Professional Timeline
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    {% for internship in student.internships %}
+                    <div
+                        style="display: flex; gap: 1.25rem; padding: 1.25rem; background: var(--bg-page); border-radius: var(--radius-md); border-left: 4px solid var(--warning);">
+                        <div style="font-size: 1.25rem; color: var(--warning);"><i class="fas fa-briefcase"></i></div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-main);">Internship Experience</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">{{ internship }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% for project in student.projects %}
+                    <div
+                        style="display: flex; gap: 1.25rem; padding: 1.25rem; background: var(--bg-page); border-radius: var(--radius-md); border-left: 4px solid var(--secondary);">
+                        <div style="font-size: 1.25rem; color: var(--secondary);"><i class="fas fa-lightbulb"></i></div>
+                        <div>
+                            <div style="font-weight: 700; color: var(--text-main);">Key Project</div>
+                            <div style="color: var(--text-muted); font-size: 0.9rem;">{{ project }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Academic Metadata -->
+            <div class="jarvis-card" style="padding: 2rem;">
+                <h3
+                    style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">
+                    Academic Profile</h3>
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-university" style="width: 20px; color: var(--text-dim);"></i>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-dim);">BRANCH</div>
+                            <div style="font-weight: 600; font-size: 0.95rem;">{{ student.department }}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-graduation-cap" style="width: 20px; color: var(--text-dim);"></i>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-dim);">CURRENT YEAR</div>
+                            <div style="font-weight: 600; font-size: 0.95rem;">Year {{ student.year }}</div>
+                        </div>
+                    </div>
+                    {% if student.phone %}
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <i class="fas fa-phone" style="width: 20px; color: var(--text-dim);"></i>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--text-dim);">CONTACT</div>
+                            <div style="font-weight: 600; font-size: 0.95rem;">{{ student.phone }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Intelligent Actions -->
+            <div class="jarvis-card"
+                style="padding: 1.5rem; background: var(--grad-primary); color: white; border: none;">
+                <h4 style="font-size: 1.1rem; margin-bottom: 0.75rem;">AI Intelligence</h4>
+                <p style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 1.5rem;">Ask J.A.R.V.I.S to analyze this
+                    student's compatibility for specific job roles or skill gaps.</p>
+                <a href="{{ url_for('chat.chat') }}" class="btn"
+                    style="width: 100%; background: white; color: var(--primary); justify-content: center; font-size: 0.9rem;">
+                    <i class="fas fa-robot"></i> Expert Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post-Footer Navigation -->
+    <div style="margin-top: 4rem; display: flex; justify-content: center; gap: 1rem;">
+        <a href="{{ url_for('student.all_students') }}" class="btn" style="color: var(--text-muted);">
+            <i class="fas fa-arrow-left"></i> Registry
+        </a>
+        <a href="{{ url_for('student.explore') }}" class="btn" style="color: var(--text-muted);">
+            <i class="fas fa-camera"></i> Face Recognition
+        </a>
+    </div>
+</div>
+{% endblock %}

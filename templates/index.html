@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}J.A.R.V.I.S - Your Intelligent College Assistant{% endblock %}
+
+{% block content %}
+<div class="jarvis-hero" style="animation: fadeIn 1s ease-out;">
+    <div class="hero-badge" style="animation: slideDown 0.8s cubic-bezier(0.4, 0, 0.2, 1);">
+        <i class="fas fa-sparkles"></i>
+        <span>Advanced AI Intelligence System</span>
+    </div>
+
+    <h1 class="jarvis-title" style="margin-bottom: 1.5rem;">J.A.R.V.I.S</h1>
+    <p class="jarvis-subtitle" style="max-width: 800px; margin: 0 auto 2.5rem;">The next-generation intelligence hub for
+        academic excellence and professional career synthesis.</p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; margin-bottom: 4rem;">
+        <a href="{{ url_for('assistant.assistant_page') }}" class="btn btn-primary"
+            style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: var(--radius-lg);">
+            <i class="fas fa-robot"></i> Initialize Assistant
+        </a>
+        <a href="{{ url_for('student.explore') }}" class="btn"
+            style="padding: 1rem 2.5rem; font-size: 1.1rem; border-radius: var(--radius-lg); background: var(--bg-card); border: 1px solid var(--border); box-shadow: var(--shadow-sm);">
+            <i class="fas fa-search"></i> Explore Registry
+        </a>
+    </div>
+
+    <div class="feature-grid" style="perspective: 1000px;">
+        <!-- Neural Assistant Card -->
+        <a href="{{ url_for('assistant.assistant_page') }}" class="jarvis-card"
+            style="border-top: 4px solid var(--primary);">
+            <div class="card-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--primary);">
+                <i class="fas fa-robot"></i>
+            </div>
+            <h3>Neural Assistant</h3>
+            <p class="card-desc">
+                Engage with your personal AI companion. Features persistence, voice commands,
+                and context-aware task automation.
+            </p> 
+            <div class="card-action"
+                style="margin-top: auto; display: flex; align-items: center; gap: 0.5rem; color: var(--primary); font-weight: 600;">
+                <span>Start Dialogue</span>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </a>
+
+        <!-- Knowledge Base Card -->
+        <a href="{{ url_for('chat.chat') }}" class="jarvis-card" style="border-top: 4px solid var(--secondary);">
+            <div class="card-icon" style="background: rgba(6, 182, 212, 0.1); color: var(--secondary);">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h3>Intelligence Hub</h3>
+            <p class="card-desc">
+                Query institutional data using advanced RAG. Instant retrieval of student metrics
+                and documentation via natural language.
+            </p>
+            <div class="card-action"
+                style="margin-top: auto; display: flex; align-items: center; gap: 0.5rem; color: var(--secondary); font-weight: 600;">
+                <span>Compute Query</span>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </a>
+
+        <!-- Vision Identification Card -->
+        <a href="{{ url_for('student.explore') }}" class="jarvis-card" style="border-top: 4px solid var(--success);">
+            <div class="card-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
+                <i class="fas fa-eye"></i>
+            </div>
+            <h3>Vision Core</h3>
+            <p class="card-desc">
+                High-precision biometric identification. Secure facial recognition for
+                automated attendance and student profile verification.
+            </p>
+            <div class="card-action"
+                style="margin-top: auto; display: flex; align-items: center; gap: 0.5rem; color: var(--success); font-weight: 600;">
+                <span>Initialize Vision</span>
+                <i class="fas fa-chevron-right"></i>
+            </div>
+        </a>
+    </div>
+</div>
+
+<!-- Tech Stack Marquee -->
+<div
+    style="background: var(--bg-card); padding: 3rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); overflow: hidden;">
+    <p
+        style="text-align: center; font-size: 0.8rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.2em; margin-bottom: 2rem;">
+        Powered by Industrial Tech Stack
+    </p>
+    <div class="marquee">
+        <div class="marquee-content">
+            <i class="fab fa-python"></i> Python Engine
+            <i class="fas fa-database"></i> SQLite Layer
+            <i class="fab fa-js"></i> Neural Logic
+            <i class="fas fa-microchip"></i> Groq LPU
+            <i class="fas fa-brain"></i> Meta Llama 3
+            <i class="fab fa-react"></i> Interface v2
+            <i class="fas fa-dna"></i> Biometrics
+            <i class="fas fa-network-wired"></i> RAG Pipeline
+            <!-- Repeat for seamless loop -->
+            <i class="fab fa-python"></i> Python Engine
+            <i class="fas fa-database"></i> SQLite Layer
+            <i class="fab fa-js"></i> Neural Logic
+            <i class="fas fa-microchip"></i> Groq LPU
+        </div>
+    </div>
+</div>
+
+<section style="padding: 4rem 1rem; text-align: center;">
+    <h2
+        style="font-size: 2.5rem; margin-bottom: 3rem; background: var(--grad-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+        Platform Capabilities</h2>
+    <div class="feature-grid" style="max-width: 1200px; margin: 0 auto;">
+        <div class="jarvis-card" style="padding: 2rem;">
+            <div style="font-size: 2rem; color: var(--primary); margin-bottom: 1rem;"><i
+                    class="fas fa-shield-halved"></i></div>
+            <h4>Secure Admin Panel</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Granular control over student data and AI system
+                configurations.</p>
+        </div>
+        <div class="jarvis-card" style="padding: 2rem;">
+            <div style="font-size: 2rem; color: var(--secondary); margin-bottom: 1rem;"><i
+                    class="fas fa-file-invoice"></i></div>
+            <h4>Resume Intelligence</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Automated report generation and student profile
+                exports in PDF.</p>
+        </div>
+        <div class="jarvis-card" style="padding: 2rem;">
+            <div style="font-size: 2rem; color: var(--accent); margin-bottom: 1rem;"><i class="fas fa-bolt"></i></div>
+            <h4>Real-time Processing</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Ultra-fast response times for AI chat and identity
+                verification.</p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

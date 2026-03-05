@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}Neural Personal Assistant | J.A.R.V.I.S{% endblock %}
+
+{% block content %}
+<div class="assistant-wrapper">
+    <!-- Conversation Sidebar -->
+    <aside class="assistant-sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <button class="new-chat-btn" onclick="startNewChat()">
+                <i class="fas fa-plus"></i> Initialize New Session
+            </button>
+        </div>
+        <div class="chat-history-list" id="chatHistory">
+            {% for conv in conversations %}
+            <div class="history-item {% if loop.first %}active{% endif %}" data-action="load" data-id="{{ conv.id }}">
+                <i class="fas fa-comment-dots"></i>
+                <span>{{ conv.title }}</span>
+                <button class="history-delete-btn" data-action="delete" data-id="{{ conv.id }}">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="sidebar-footer"
+            style="padding: 1.5rem; border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">
+            <p
+                style="font-size: 0.7rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem;">
+                Neural Synthesis
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <div
+                    style="display: flex; background: var(--bg-page); padding: 0.3rem; border-radius: 10px; border: 1px solid var(--border);">
+                    <button class="voice-gender-btn active" id="maleVoice" onclick="setVoiceGender('male')"
+                        style="flex: 1; padding: 0.5rem; border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.3s; background: var(--grad-primary); color: white;">
+                        Male
+                    </button>
+                    <button class="voice-gender-btn" id="femaleVoice" onclick="setVoiceGender('female')"
+                        style="flex: 1; padding: 0.5rem; border: none; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: 0.3s; background: transparent; color: var(--text-muted);">
+                        Female
+                    </button>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Core -->
+    <main class="assistant-main">
+        <!-- Mobile Sidebar Toggle -->
+        <div class="mobile-sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" style="display: none;">
+            <i class="fas fa-bars"></i>
+        </div>
+        <!-- Neural Hub -->
+        <div id="emptyState" class="status-indicator"
+            style="text-align: center; padding-top: 10vh; color: var(--text-dim); flex: 1; overflow-y: auto;">
+            <div class="voice-status-ring" style="margin: 0 auto 1.5rem;">
+                <i class="fas fa-microchip" style="font-size: 1.5rem; color: var(--primary);"></i>
+            </div>
+            <h2 style="font-family: var(--font-heading); margin-bottom: 0.5rem;">Neural Assistant Active</h2>
+            <p style="margin-bottom: 2.5rem;">Establishing communication protocols. State your command or use voice
+                activation.</p>
+
+            <!-- Neural Command Samples -->
+            <div
+                style="max-width: 600px; margin: 0 auto; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; text-align: left; box-shadow: var(--shadow-sm);">
+                <p
+                    style="font-size: 0.7rem; font-weight: 800; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-bolt" style="color: var(--warning);"></i> Intelligence Operations
+                </p>
+                <div class="ops-matrix">
+                    <button class="btn"
+                        style="background: var(--bg-page); border: 1px solid var(--border-dim); border-radius: 10px; padding: 0.75rem; font-size: 0.85rem; text-align: left; transition: 0.3s; display: flex; align-items: center; gap: 0.75rem;"
+                        onclick="quickCommand('Show all Computer Science department students')">
+                        <i class="fas fa-microchip" style="color: var(--primary);"></i> CS Registry
+                    </button>
+                    <button class="btn"
+                        style="background: var(--bg-page); border: 1px solid var(--border-dim); border-radius: 10px; padding: 0.75rem; font-size: 0.85rem; text-align: left; transition: 0.3s; display: flex; align-items: center; gap: 0.75rem;"
+                        onclick="quickCommand('Who has expertise in Python programming?')">
+                        <i class="fab fa-python" style="color: var(--success);"></i> Python Core
+                    </button>
+                    <button class="btn"
+                        style="background: var(--bg-page); border: 1px solid var(--border-dim); border-radius: 10px; padding: 0.75rem; font-size: 0.85rem; text-align: left; transition: 0.3s; display: flex; align-items: center; gap: 0.75rem;"
+                        onclick="quickCommand('Find students matching Machine Learning requirements')">
+                        <i class="fas fa-brain" style="color: var(--warning);"></i> ML Intel
+                    </button>
+                    <button class="btn"
+                        style="background: var(--bg-page); border: 1px solid var(--border-dim); border-radius: 10px; padding: 0.75rem; font-size: 0.85rem; text-align: left; transition: 0.3s; display: flex; align-items: center; gap: 0.75rem;"
+                        onclick="quickCommand('List students with professional web development skills')">
+                        <i class="fas fa-rocket" style="color: var(--accent);"></i> Web Deploy
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Message Display Area -->
+        <div class="chat-messages" id="assistantMessages"
+            style="display: none; flex: 1; padding: 2rem; overflow-y: auto; scroll-behavior: smooth;">
+        </div>
+
+        <!-- System Controls -->
+        <div class="assistant-input-hub">
+            <!-- Voice Visualization / UI -->
+            <div id="voiceUI" style="display: none; text-align: center; margin-bottom: 1rem;">
+                <p id="voiceStatus" style="font-size: 0.8rem; color: var(--primary); font-family: monospace;">[
+                    LISTENING ]</p>
+                <div class="waves"
+                    style="display: flex; justify-content: center; gap: 4px; height: 20px; align-items: center;">
+                    <div
+                        style="width: 3px; height: 10px; background: var(--primary); border-radius: 10px; animation: wave 1s infinite;">
+                    </div>
+                    <div
+                        style="width: 3px; height: 18px; background: var(--primary); border-radius: 10px; animation: wave 1s infinite 0.1s;">
+                    </div>
+                    <div
+                        style="width: 3px; height: 12px; background: var(--primary); border-radius: 10px; animation: wave 1s infinite 0.2s;">
+                    </div>
+                    <div
+                        style="width: 3px; height: 16px; background: var(--primary); border-radius: 10px; animation: wave 1s infinite 0.3s;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-bar">
+                <button class="voice-btn" id="voiceToggle" onclick="toggleVoice()" title="Toggle Voice Recognition">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <input type="text" class="control-input" id="assistantInput" placeholder="Neural sequence input..."
+                    autocomplete="off">
+                <button class="chat-send-btn" onclick="sendMessage()" id="sendBtn">
+                    <i class="fas fa-paper-plane" style="font-size: 0.9rem;"></i>
+                </button>
+                <button class="voice-btn" id="speakToggle" onclick="toggleTextToSpeech()" title="Toggle Voice Response">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
+
+<style>
+    @keyframes wave {
+
+        0%,
+        100% {
+            height: 10px;
+            opacity: 0.5;
+        }
+
+        50% {
+            height: 20px;
+            opacity: 1;
+        }
+    }
+
+    /* Chat Bubbles Specific to Assistant */
+    .assistant-bubble {
+        max-width: 80%;
+        padding: 1.25rem 1.5rem;
+        border-radius: var(--radius-lg);
+        margin-bottom: 1.5rem;
+        position: relative;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        animation: fadeIn 0.3s ease;
+        overflow-wrap: break-word;
+        word-break: break-word;
+    }
+
+    .assistant-bubble.user {
+        align-self: flex-end;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--text-main);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .assistant-bubble.ai {
+        align-self: flex-start;
+        background: var(--bg-page);
+        border: 1px solid var(--border-dim);
+        color: var(--text-main);
+        border-left: 4px solid var(--primary);
+    }
+
+    .assistant-bubble .role-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+        display: block;
+        color: var(--text-dim);
+    }
+
+    .ops-matrix {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    @media (max-width: 600px) {
+        .ops-matrix {
+            grid-template-columns: 1fr;
+        }
+
+        .status-indicator {
+            padding: 2rem 1rem !important;
+        }
+
+        .assistant-sidebar {
+            width: 85% !important;
+            max-width: 300px;
+        }
+    }
+</style>
+
+<script>
+    let currentConversationId = null;
+    let recognition = null;
+    let isRecording = false;
+    let isTalking = false; // Start muted by default as requested
+    let selectedGender = 'male';
+    const synth = window.speechSynthesis;
+
+    // Load preferred settings on boot
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTalking = localStorage.getItem('isTalking');
+        if (savedTalking !== null) {
+            isTalking = savedTalking === 'true';
+            updateSpeakBtnUI();
+        }
+
+        const savedGender = localStorage.getItem('voiceGender');
+        if (savedGender) {
+            setVoiceGender(savedGender);
+        }
+    });
+
+    function setVoiceGender(gender) {
+        selectedGender = gender;
+        localStorage.setItem('voiceGender', gender);
+
+        const maleBtn = document.getElementById('maleVoice');
+        const femaleBtn = document.getElementById('femaleVoice');
+
+        if (maleBtn && femaleBtn) {
+            if (gender === 'male') {
+                maleBtn.style.background = 'var(--grad-primary)';
+                maleBtn.style.color = 'white';
+                femaleBtn.style.background = 'transparent';
+                femaleBtn.style.color = 'var(--text-muted)';
+            } else {
+                femaleBtn.style.background = 'var(--grad-primary)';
+                femaleBtn.style.color = 'white';
+                maleBtn.style.background = 'transparent';
+                maleBtn.style.color = 'var(--text-muted)';
+            }
+        }
+    }
+
+    function toggleTextToSpeech() {
+        isTalking = !isTalking;
+        localStorage.setItem('isTalking', isTalking);
+        if (!isTalking) synth.cancel();
+        updateSpeakBtnUI();
+    }
+
+    function updateSpeakBtnUI() {
+        const btn = document.getElementById('speakToggle');
+        if (btn) {
+            btn.classList.toggle('active', isTalking);
+            btn.innerHTML = isTalking ? '<i class="fas fa-volume-up"></i>' : '<i class="fas fa-volume-mute"></i>';
+            btn.title = isTalking ? "Mute Voice Response" : "Unmute Voice Response";
+        }
+    }
+
+    // Initialize Speech Recognition
+    if ('webkitSpeechRecognition' in window) {
+        recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        recognition.onstart = () => {
+            isRecording = true;
+            document.getElementById('voiceToggle').classList.add('active');
+            document.getElementById('voiceUI').style.display = 'block';
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('assistantInput').value = transcript;
+            sendMessage();
+        };
+
+        recognition.onerror = () => {
+            stopRecording();
+        };
+
+        recognition.onend = () => {
+            stopRecording();
+        };
+    }
+
+    function toggleVoice() {
+        if (!recognition) {
+            alert("Speech recognition not supported in this browser.");
+            return;
+        }
+        if (isRecording) {
+            recognition.stop();
+        } else {
+            recognition.start();
+        }
+    }
+
+    function stopRecording() {
+        isRecording = false;
+        document.getElementById('voiceToggle').classList.remove('active');
+        document.getElementById('voiceUI').style.display = 'none';
+    }
+
+    function speak(text) {
+        if (!isTalking) return;
+        synth.cancel();
+
+        // Clean text of markdown/symbols for better synthesis
+        const cleanText = text.replace(/[*_#`]/g, '').replace(/\[.*?\]/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        const voices = synth.getVoices();
+
+        // Neural Voice Mapping
+        let chosenVoice = null;
+        if (selectedGender === 'male') {
+            chosenVoice = voices.find(v => (v.name.includes('David') || v.name.includes('Male') || v.name.includes('Guy')) && v.lang.startsWith('en')) || voices[0];
+        } else {
+            chosenVoice = voices.find(v => (v.name.includes('Zira') || v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Google UK English Female')) && v.lang.startsWith('en')) || voices[1];
+        }
+
+        if (chosenVoice) utterance.voice = chosenVoice;
+        utterance.rate = 1.05;
+        utterance.pitch = 1.0;
+        synth.speak(utterance);
+    }
+
+    async function sendMessage() {
+        const input = document.getElementById('assistantInput');
+        const query = input.value.trim();
+        if (!query) return;
+
+        input.value = '';
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('assistantMessages').style.display = 'flex';
+        appendMessage('user', query);
+
+        try {
+            const response = await fetch('/assistant/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: query,
+                    conversation_id: currentConversationId
+                })
+            });
+
+            const data = await response.json();
+            if (data.error) throw new Error(data.error);
+
+            currentConversationId = data.conversation_id;
+            appendMessage('assistant', data.response);
+            speak(data.response);
+
+            // Refresh history if this was a new chat
+            updateHistoryList();
+        } catch (error) {
+            console.error("Chat Error:", error);
+            appendMessage('assistant', "Neural link disrupted. Error: " + error.message);
+        }
+    }
+
+    function appendMessage(role, content) {
+        const container = document.getElementById('assistantMessages');
+        const div = document.createElement('div');
+        div.className = `assistant-bubble ${role === 'user' ? 'user' : 'ai'}`;
+        div.style.display = 'flex';
+        div.style.flexDirection = 'column';
+
+        div.innerHTML = `
+        <span class="role-label">${role === 'user' ? 'Direct Input' : 'J.A.R.V.I.S'}</span>
+        <div class="message-content">${content}</div>
+    `;
+
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+    }
+
+    // Event delegation for history items
+    document.getElementById('chatHistory').addEventListener('click', function (e) {
+        const item = e.target.closest('.history-item');
+        const deleteBtn = e.target.closest('.history-delete-btn');
+
+        if (deleteBtn) {
+            e.stopPropagation();
+            const id = deleteBtn.getAttribute('data-id');
+            deleteChat(id, deleteBtn);
+            return;
+        }
+
+        if (item && item.getAttribute('data-action') === 'load') {
+            const id = item.getAttribute('data-id');
+            loadConversation(id, item);
+        }
+    });
+
+    async function loadConversation(id, element) {
+        currentConversationId = id;
+
+        // UI update
+        document.querySelectorAll('.history-item').forEach(i => i.classList.remove('active'));
+        element.classList.add('active');
+
+        document.getElementById('emptyState').style.display = 'none';
+        const container = document.getElementById('assistantMessages');
+        container.style.display = 'flex';
+        container.innerHTML = '<div style="text-align:center; padding: 2rem; color:var(--text-dim);"><i class="fas fa-circle-notch fa-spin"></i> Synchronizing Log...</div>';
+
+        try {
+            const response = await fetch(`/assistant/conversation/${id}`);
+            const data = await response.json();
+
+            container.innerHTML = '';
+            data.messages.forEach(msg => {
+                appendMessage(msg.role, msg.content);
+            });
+        } catch (error) {
+            console.error("Load Error:", error);
+        }
+    }
+
+    function startNewChat() {
+        currentConversationId = null;
+        document.getElementById('assistantMessages').innerHTML = '';
+        document.getElementById('assistantMessages').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'block';
+        document.querySelectorAll('.history-item').forEach(i => i.classList.remove('active'));
+    }
+
+    async function updateHistoryList() {
+        try {
+            const response = await fetch('/assistant/conversations');
+            const conversations = await response.json();
+
+            const historyContainer = document.getElementById('chatHistory');
+            historyContainer.innerHTML = '';
+
+            conversations.forEach(conv => {
+                const item = document.createElement('div');
+                item.className = `history-item ${conv.id === currentConversationId ? 'active' : ''}`;
+                item.onclick = () => loadConversation(conv.id, item);
+                item.innerHTML = `
+                <i class="fas fa-comment-dots"></i>
+                <span>${conv.title}</span>
+                <button class="history-delete-btn" onclick="event.stopPropagation(); deleteChat(${conv.id}, this)">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            `;
+                historyContainer.appendChild(item);
+            });
+        } catch (error) {
+            console.error("History Update Error:", error);
+        }
+    }
+
+    async function deleteChat(id, btn) {
+        if (!confirm("Are you sure you want to terminate this neural dialogue log?")) return;
+
+        try {
+            await fetch(`/assistant/delete/${id}`, { method: 'POST' });
+            if (currentConversationId === id) startNewChat();
+            updateHistoryList();
+        } catch (error) {
+            console.error("Delete Error:", error);
+        }
+    }
+
+    // Enter key support
+    document.getElementById('assistantInput').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    function quickCommand(text) {
+        document.getElementById('assistantInput').value = text;
+        sendMessage();
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        sidebar.classList.toggle('open');
+    }
+
+    // Load first chat on start if exists
+    window.onload = () => {
+        const firstItem = document.querySelector('.history-item');
+        if (firstItem) {
+            const id = firstItem.getAttribute('data-id');
+            loadConversation(id, firstItem);
+        }
+    };
+</script>
+{% endblock %}

@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Enterprise Job Intelligence | J.A.R.V.I.S{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 3rem; padding-bottom: 5rem;">
+    <div style="margin-bottom: 3rem;">
+        <h1
+            style="font-size: 2.5rem; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">
+            Job Intelligence Hub
+        </h1>
+        <p style="color: var(--text-muted);">AI-powered profile matching and professional document synthesis.</p>
+    </div>
+
+    <div class="neural-grid">
+        <!-- Pipeline: Input -->
+        <section>
+            <div class="jarvis-card" style="padding: 2rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+                    <div
+                        style="width: 40px; height: 40px; background: rgba(245, 158, 11, 0.1); color: var(--warning); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-file-invoice"></i>
+                    </div>
+                    <h3 style="font-size: 1.25rem;">Opportunity Parameters</h3>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <label
+                        style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;">Job
+                        Description Hash</label>
+                    <textarea id="jobDescription" rows="12"
+                        placeholder="Paste the requirement specification here for neural analysis..."
+                        style="width: 100%; padding: 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit; font-size: 0.9rem; resize: vertical; line-height: 1.6;"></textarea>
+                </div>
+
+                <button class="btn btn-primary" style="width: 100%; padding: 1rem; justify-content: center;"
+                    onclick="analyzeJob()">
+                    <i class="fas fa-microchip"></i> Run Match Analysis
+                </button>
+
+                <div style="margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border-dim);">
+                    <h4
+                        style="font-size: 0.9rem; margin-bottom: 1.5rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-magic" style="color: var(--primary);"></i> Synthesis Controls
+                    </h4>
+
+                    {% if students %}
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div>
+                            <select id="studentSelect"
+                                style="width: 100%; padding: 0.85rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); cursor: pointer; font-family: inherit;">
+                                <option value="">Select Candidate Profile</option>
+                                {% for student in students %}
+                                <option value="{{ student.id }}">{{ student.name }} ({{ student.department }})</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <button class="btn"
+                                style="background: var(--bg-page); border: 1px solid var(--border); font-size: 0.85rem;"
+                                onclick="generateResumeForSelected()">
+                                <i class="fas fa-file-alt"></i> Resume DNA
+                            </button>
+                            <button class="btn"
+                                style="background: var(--bg-page); border: 1px solid var(--border); font-size: 0.85rem;"
+                                onclick="generateCoverLetterForSelected()">
+                                <i class="fas fa-envelope-open-text"></i> Cover Letter
+                            </button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div
+                        style="padding: 1rem; background: var(--bg-page); border-radius: var(--radius-md); border: 1px dashed var(--border); text-align: center;">
+                        <p style="color: var(--text-dim); font-size: 0.8rem;">No student profiles found. Add candidates
+                            via
+                            the Control Center to enable synthesis.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- Pipeline: Output -->
+        <section>
+            <div id="jobResults">
+                <div class="jarvis-card"
+                    style="padding: 4rem 2rem; text-align: center; border-style: dashed; background: transparent;">
+                    <div
+                        style="width: 64px; height: 64px; background: rgba(99, 102, 241, 0.05); color: var(--text-dim); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 1.5rem;">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <h4 style="color: var(--text-main); margin-bottom: 0.5rem;">Awaiting Input</h4>
+                    <p style="color: var(--text-dim); font-size: 0.9rem; max-width: 300px; margin: 0 auto;">Enter a job
+                        description to initialize matching and content synthesis.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Intelligence Capabilities -->
+    <div
+        style="margin-top: 4rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+        <div class="jarvis-card" style="padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem;">
+            <div style="color: var(--primary); font-size: 1.25rem; margin-top: 0.2rem;"><i
+                    class="fas fa-project-diagram"></i></div>
+            <div>
+                <h5 style="margin-bottom: 0.4rem;">Neural Matching</h5>
+                <p style="color: var(--text-muted); font-size: 0.8rem;">Algorithms evaluate skill vectors against job
+                    requirements for perfect candidate alignment.</p>
+            </div>
+        </div>
+        <div class="jarvis-card" style="padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem;">
+            <div style="color: var(--success); font-size: 1.25rem; margin-top: 0.2rem;"><i class="fas fa-dna"></i></div>
+            <div>
+                <h5 style="margin-bottom: 0.4rem;">Resume Adaptation</h5>
+                <p style="color: var(--text-muted); font-size: 0.8rem;">Synthesize high-impact bullet points that
+                    resonate
+                    with automated tracking systems (ATS).</p>
+            </div>
+        </div>
+        <div class="jarvis-card" style="padding: 1.5rem; display: flex; align-items: flex-start; gap: 1rem;">
+            <div style="color: var(--accent); font-size: 1.25rem; margin-top: 0.2rem;"><i
+                    class="fas fa-feather-pointed"></i></div>
+            <div>
+                <h5 style="margin-bottom: 0.4rem;">Contextual Cover Letters</h5>
+                <p style="color: var(--text-muted); font-size: 0.8rem;">Professional communication tailored to the
+                    specific
+                    organizational culture and role.</p>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block extra_js %}
+    <script>
+        function generateResumeForSelected() {
+            const studentId = document.getElementById('studentSelect').value;
+            if (!studentId) {
+                alert('Please select a student profile first');
+                return;
+            }
+            generateResume(parseInt(studentId));
+        }
+
+        function generateCoverLetterForSelected() {
+            const studentId = document.getElementById('studentSelect').value;
+            if (!studentId) {
+                alert('Please select a student profile first');
+                return;
+            }
+            generateCoverLetter(parseInt(studentId));
+        }
+
+        // Add loading states to buttons
+        const originalAnalyze = window.analyzeJob;
+        window.analyzeJob = async function () {
+            const btn = document.querySelector('button[onclick="analyzeJob()"]');
+            const icon = btn.querySelector('i');
+            const originalHtml = btn.innerHTML;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Processing Neural Data...';
+
+            try {
+                await originalAnalyze();
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        };
+    </script>
+</div>
+{% endblock %}

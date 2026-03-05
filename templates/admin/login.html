@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block title %}Authenticating... | J.A.R.V.I.S Admin{% endblock %}
+
+{% block content %}
+<div style="max-width: 440px; margin: 6rem auto; padding: 0 1.5rem;">
+    <div class="jarvis-card" style="padding: 3rem;">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div class="jarvis-logo" style="margin: 0 auto 1.5rem; width: 64px; height: 64px;"></div>
+            <h2
+                style="font-size: 1.75rem; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">
+                Secure Gateway
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Authorized personnel access only</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('admin.login') }}">
+            <div style="margin-bottom: 1.5rem;">
+                <label
+                    style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;"
+                    for="username">Access ID</label>
+                <input type="text" id="username" name="username"
+                    style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit; transition: var(--transition);"
+                    placeholder="Enter username" required autofocus>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <label
+                    style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;"
+                    for="password">Security Code</label>
+                <input type="password" id="password" name="password"
+                    style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit; transition: var(--transition);"
+                    placeholder="Enter password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; padding: 1rem; justify-content: center; font-size: 1rem;">
+                Initialize Connection <i class="fas fa-arrow-right" style="margin-left: 0.5rem;"></i>
+            </button>
+        </form>
+
+        <div
+            style="text-align: center; margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border-dim);">
+            <div
+                style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-dim); font-size: 0.75rem; font-family: monospace;">
+                <i class="fas fa-lock"></i>
+                <span>END-TO-END ENCRYPTED SESSION</span>
+            </div>
+            <p style="color: var(--text-dim); font-size: 0.7rem; margin-top: 1rem; opacity: 0.5;">
+                Hint: Standard credentials active for v1.0
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

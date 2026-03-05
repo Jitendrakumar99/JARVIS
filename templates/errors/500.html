@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}500 - Server Error{% endblock %}
+
+{% block content %}
+<div style="text-align: center; padding: 4rem 1rem;">
+    <div style="font-size: 8rem; font-weight: 800; color: var(--error);">
+        500
+    </div>
+    <h1 style="margin-bottom: 1rem;">Server Error</h1>
+    <p style="color: var(--text-secondary); max-width: 400px; margin: 0 auto 2rem;">
+        Something went wrong on our end. Please try again later.
+    </p>
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-home"></i> Go Home
+        </a>
+        <button class="btn btn-secondary btn-lg" onclick="location.reload()">
+            <i class="fas fa-redo"></i> Try Again
+        </button>
+    </div>
+</div>
+{% endblock %}

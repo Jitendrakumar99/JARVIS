@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Records | J.A.R.V.I.S Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .pagination-link {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text-main);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: var(--transition);
+    }
+
+    .pagination-link:hover:not(.active) {
+        border-color: var(--primary);
+        color: var(--primary);
+        background: var(--bg-page);
+    }
+
+    .pagination-link.active {
+        background: var(--grad-primary);
+        color: white;
+        border: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 3rem; padding-bottom: 5rem;">
+    <div style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+        <div>
+            <h1
+                style="font-size: 2.5rem; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">
+                Registry Management
+            </h1>
+            <p style="color: var(--text-muted);">Manage and monitor all indexed student identities within the system.
+            </p>
+        </div>
+        <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary" style="padding: 0.8rem 1.5rem;">
+            <i class="fas fa-plus"></i> New Record
+        </a>
+    </div>
+
+    <!-- Pro Filters -->
+    <div class="jarvis-card" style="padding: 1.5rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-md);">
+        <form method="GET" style="display: flex; gap: 1rem; align-items: center;">
+            <div style="position: relative; flex: 1;">
+                <i class="fas fa-search"
+                    style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-dim);"></i>
+                <input type="text" name="search" placeholder="Filter by name, roll no, or keywords..."
+                    value="{{ search }}"
+                    style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.8rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit;">
+            </div>
+
+            <select name="department"
+                style="padding: 0.75rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); cursor: pointer; font-family: inherit;">
+                <option value="">All Departments</option>
+                {% for dept in departments %}
+                <option value="{{ dept }}" {% if dept==selected_department %}selected{% endif %}>{{ dept }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem;">Filter</button>
+            {% if search or selected_department %}
+            <a href="{{ url_for('admin.students') }}"
+                style="color: var(--text-dim); text-decoration: none; font-size: 0.9rem; font-weight: 600;">Clear</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Enterprise Table -->
+    {% if students.items %}
+    <div class="jarvis-card" style="padding: 0; overflow: hidden; margin-bottom: 2rem;">
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; min-width: 900px;">
+                <thead style="background: var(--bg-page); text-align: left;">
+                    <tr>
+                        <th
+                            style="padding: 1rem 1.5rem; font-size: 0.8rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">
+                            Identifier</th>
+                        <th
+                            style="padding: 1rem 1.5rem; font-size: 0.8rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">
+                            Identity</th>
+                        <th
+                            style="padding: 1rem 1.5rem; font-size: 0.8rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">
+                            Division</th>
+                        <th
+                            style="padding: 1rem 1.5rem; font-size: 0.8rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">
+                            Level</th>
+                        <th
+                            style="padding: 1rem 1.5rem; font-size: 0.8rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">
+                            Technical DNA</th>
+                        <th
+                            style="padding: 1rem 1.5rem; font-size: 0.8rem; color: var(--text-dim); font-weight: 700; text-transform: uppercase;">
+                            Command</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students.items %}
+                    <tr style="border-top: 1px solid var(--border-dim); transition: var(--transition);"
+                        onmouseover="this.style.background='rgba(99, 102, 241, 0.02)'"
+                        onmouseout="this.style.background='transparent'">
+                        <td style="padding: 1.25rem 1.5rem;">
+                            <span
+                                style="font-family: monospace; font-weight: 600; color: var(--primary); font-size: 0.85rem;">#{{
+                                student.roll_no }}</span>
+                        </td>
+                        <td style="padding: 1.25rem 1.5rem;">
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div
+                                    style="width: 44px; height: 44px; border-radius: var(--radius-md); overflow: hidden; background: var(--bg-page);">
+                                    {% if student.image_path %}
+                                    <img src="{{ url_for('static', filename=student.image_path) }}" alt=""
+                                        style="width: 100%; height: 100%; object-fit: cover;">
+                                    {% else %}
+                                    <div
+                                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--primary);">
+                                        {{ student.name[0] }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700; color: var(--text-main);">{{ student.name }}</div>
+                                    <div style="font-size: 0.8rem; color: var(--text-dim);">{{ student.email or 'No
+                                        email'
+                                        }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 1.25rem 1.5rem; font-weight: 600; font-size: 0.9rem;">{{ student.department
+                            }}
+                        </td>
+                        <td style="padding: 1.25rem 1.5rem;">
+                            <span
+                                style="font-size: 0.8rem; background: var(--bg-page); padding: 0.3rem 0.75rem; border-radius: var(--radius-sm); border: 1px solid var(--border); font-weight: 600;">Year
+                                {{ student.year }}</span>
+                        </td>
+                        <td style="padding: 1.25rem 1.5rem;">
+                            <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; max-width: 200px;">
+                                {% for skill in student.skills[:2] %}
+                                <span
+                                    style="font-size: 0.7rem; background: rgba(99, 102, 241, 0.08); color: var(--primary); padding: 0.15rem 0.5rem; border-radius: 4px; font-weight: 600;">{{
+                                    skill }}</span>
+                                {% endfor %}
+                                {% if student.skills|length > 2 %}
+                                <span style="font-size: 0.7rem; color: var(--text-dim);">+{{ student.skills|length - 2
+                                    }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td style="padding: 1.25rem 1.5rem;">
+                            <div style="display: flex; gap: 0.75rem; align-items: center;">
+                                <a href="{{ url_for('student.profile', id=student.id) }}"
+                                    style="color: var(--text-dim); transition: var(--transition);"
+                                    onmouseover="this.style.color='var(--primary)'"><i class="fas fa-eye"></i></a>
+                                <a href="{{ url_for('admin.edit_student', id=student.id) }}"
+                                    style="color: var(--text-dim); transition: var(--transition);"
+                                    onmouseover="this.style.color='var(--primary)'"><i class="fas fa-edit"></i></a>
+                                <form method="POST" action="{{ url_for('admin.delete_student', id=student.id) }}"
+                                    style="display: contents;" onsubmit="return confirm('Delete student profile?')">
+                                    <button type="submit"
+                                        style="background: none; border: none; padding: 0; color: var(--text-dim); cursor: pointer; transition: var(--transition);"
+                                        onmouseover="this.style.color='var(--danger)'">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modern Pagination -->
+    {% if students.pages > 1 %}
+    <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem;">
+        {% for page in students.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+        {% if page %}
+        <a href="{{ url_for('admin.students', page=page, search=search, department=selected_department) }}"
+            class="pagination-link {% if page == students.page %}active{% endif %}">
+            {{ page }}
+        </a>
+        {% else %}
+        <span
+            style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; color: var(--text-dim);">...</span>
+        {% endif %}
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div
+        style="text-align: center; padding: 6rem 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-xl);">
+        <div
+            style="width: 80px; height: 80px; background: rgba(99, 102, 241, 0.1); color: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem;">
+            <i class="fas fa-database"></i>
+        </div>
+        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Registry Empty</h3>
+        <p style="color: var(--text-muted); max-width: 400px; margin: 0 auto; margin-bottom: 2rem;">
+            No student records match your current indexing filters. Try clearing constraints or adding a new record.
+        </p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary">Add Record</a>
+            <a href="{{ url_for('admin.students') }}" class="btn" style="border: 1px solid var(--border);">Reset
+                Filters</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

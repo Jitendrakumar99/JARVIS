@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Match Found | J.A.R.V.I.S Intelligence{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding-bottom: 4rem;">
+    <!-- Success Header -->
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <div class="hero-badge"
+            style="background: rgba(16, 185, 129, 0.1); color: var(--success); margin-bottom: 1.5rem;">
+            <i class="fas fa-check-circle"></i>
+            <span>Neural Match Confirmed</span>
+        </div>
+        <h1
+            style="font-size: 2.5rem; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;">
+            Student Identified
+        </h1>
+        <div
+            style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: var(--text-muted); font-weight: 500;">
+            <i class="fas fa-brain"></i>
+            <span>System confidence: <span style="color: var(--success); font-weight: 700;">{{ confidence
+                    }}%</span></span>
+        </div>
+    </div>
+
+    <div class="jarvis-card" style="padding: 0; overflow: hidden; border: none;">
+        <div
+            style="background: var(--bg-page); padding: 3rem; display: grid; grid-template-columns: auto 1fr; gap: 3rem; align-items: start;">
+            <!-- Profile Column -->
+            <div style="text-align: center;">
+                <div
+                    style="width: 200px; height: 200px; border-radius: var(--radius-xl); overflow: hidden; border: 4px solid var(--border); box-shadow: var(--shadow-lg); margin-bottom: 1.5rem;">
+                    {% if student.image_path %}
+                    <img src="{{ url_for('static', filename=student.image_path) }}" alt="{{ student.name }}"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div
+                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 4rem; font-weight: 800; color: var(--primary); background: var(--bg-card);">
+                        {{ student.name[0] }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div style="font-family: monospace; font-size: 0.85rem; color: var(--text-dim); letter-spacing: 0.1em;">
+                    UID: {{ student.roll_no }}</div>
+            </div>
+
+            <!-- Detail Column -->
+            <div>
+                <h2 style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--text-main);">{{ student.name }}</h2>
+                <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem; margin-bottom: 2rem;">{{
+                    student.department }} • Year {{ student.year }}</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h4
+                            style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem;">
+                            Technical DNA</h4>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                            {% for skill in student.skills[:4] %}
+                            <span
+                                style="font-size: 0.75rem; background: rgba(99, 102, 241, 0.08); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 6px; font-weight: 600;">{{
+                                skill }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div>
+                        <h4
+                            style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem;">
+                            Contact Channels</h4>
+                        <div
+                            style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                            <span><i class="fas fa-envelope" style="width: 20px;"></i> {{ student.email or 'N/A'
+                                }}</span>
+                            <span><i class="fas fa-phone" style="width: 20px;"></i> {{ student.phone or 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+                    <a href="{{ url_for('student.profile', id=student.id) }}" class="btn btn-primary"
+                        style="padding: 0.85rem 2rem;">
+                        <i class="fas fa-id-card"></i> View Full File
+                    </a>
+                    <a href="{{ url_for('student.download_pdf', id=student.id) }}" class="btn"
+                        style="border: 1px solid var(--border); background: var(--bg-card);">
+                        <i class="fas fa-file-pdf"></i> Data Report
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subtle Re-scan link -->
+        <div
+            style="background: var(--bg-card); padding: 1.5rem; border-top: 1px solid var(--border-dim); text-align: center;">
+            <p style="color: var(--text-dim); font-size: 0.85rem;">Not the student you were looking for? <a
+                    href="{{ url_for('student.explore') }}"
+                    style="color: var(--primary); text-decoration: none; font-weight: 600;">Initiate New Scan</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

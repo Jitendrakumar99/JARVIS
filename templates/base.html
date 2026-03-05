@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="J.A.R.V.I.S - Just A Rather Very Intelligent System - AI-powered college assistant with face recognition and RAG">
+    <title>{% block title %}J.A.R.V.I.S{% endblock %} | College Assistant</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="nav-brand">
+                <div class="jarvis-logo">J</div>
+                <span>J.A.R.V.I.S</span>
+            </a>
+
+            <ul class="nav-menu">
+                <li><a href="{{ url_for('index') }}"
+                        class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                        Home
+                    </a></li>
+                <li><a href="{{ url_for('student.explore') }}"
+                        class="nav-link {% if request.endpoint and 'explore' in request.endpoint %}active{% endif %}">
+                        Explore
+                    </a></li>
+                <li><a href="{{ url_for('student.all_students') }}"
+                        class="nav-link {% if request.endpoint and 'all_students' in request.endpoint %}active{% endif %}">
+                        Students
+                    </a></li>
+                <li><a href="{{ url_for('assistant.assistant_page') }}"
+                        class="nav-link {% if request.endpoint and 'assistant' in request.endpoint %}active{% endif %}">
+                        Assistant
+                    </a></li>
+                <li><a href="{{ url_for('chat.chat') }}"
+                        class="nav-link {% if request.endpoint and 'chat' in request.endpoint %}active{% endif %}">
+                        AI Chat
+                    </a></li>
+                <li><a href="{{ url_for('jobs.index') }}"
+                        class="nav-link {% if request.endpoint and 'jobs' in request.endpoint %}active{% endif %}">
+                        Jobs
+                    </a></li>
+
+                {% if current_user.is_authenticated %}
+                <li><a href="{{ url_for('admin.dashboard') }}"
+                        class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+                        Dashboard
+                    </a></li>
+                <li><a href="{{ url_for('admin.profile') }}"
+                        class="nav-link {% if request.endpoint == 'admin.profile' %}active{% endif %}">
+                        Profile
+                    </a></li>
+                {% else %}
+                <li><a href="{{ url_for('admin.login') }}" class="nav-link nav-admin">
+                        Login
+                    </a></li>
+                {% endif %}
+            </ul>
+
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button class="theme-toggle" id="themeToggle" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="mobile-menu-btn" id="mobileToggle" title="Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container">
+        {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">
+            <i
+                class="fas {% if category == 'success' %}fa-check-circle{% elif category == 'error' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %}"></i>
+            <span>{{ message }}</span>
+            <button class="flash-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <div class="jarvis-logo">J</div>
+                <span>J.A.R.V.I.S</span>
+            </div>
+            <p class="footer-text">
+                Just A Rather Very Intelligent System | Enterprise-Grade AI Platform
+            </p>
+            <div class="footer-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('chat.chat') }}">AI Assistant</a>
+                <a href="{{ url_for('admin.login') }}">Admin Portal</a>
+            </div>
+            <p style="margin-top: 2rem; font-size: 0.8rem; color: var(--text-dim);">
+                &copy; 2024 J.A.R.V.I.S AI. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // Mobile Menu Logic
+        const mobileToggle = document.getElementById('mobileToggle');
+        const navMenu = document.querySelector('.nav-menu');
+
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                const icon = mobileToggle.querySelector('i');
+                icon.classList.toggle('fa-bars');
+                icon.classList.toggle('fa-times');
+            });
+        }
+
+        // Auto-close menu on link click
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                const icon = mobileToggle.querySelector('i');
+                if (icon.classList.contains('fa-times')) {
+                    icon.classList.add('fa-bars');
+                    icon.classList.remove('fa-times');
+                }
+            });
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

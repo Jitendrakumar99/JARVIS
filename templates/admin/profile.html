@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - J.A.R.V.I.S{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-container {
+        max-width: 800px;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+    }
+
+    .profile-card {
+        background: rgba(17, 25, 40, 0.75);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.125);
+        border-radius: 1rem;
+        padding: 3rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        padding-bottom: 2rem;
+        margin-bottom: 1rem;
+    }
+
+    .avatar-wrapper {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0 20px rgba(var(--primary-rgb), 0.3);
+        font-size: 3rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    .profile-name {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .profile-role {
+        font-size: 1rem;
+        color: var(--primary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background: rgba(99, 102, 241, 0.1);
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .profile-details {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-item {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        transition: all 0.3s ease;
+    }
+
+    .detail-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        transform: translateY(-2px);
+    }
+
+    .detail-label {
+        font-size: 0.875rem;
+        color: var(--text-dim);
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .detail-value {
+        font-size: 1.1rem;
+        color: var(--text-main);
+        font-weight: 500;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .btn-logout {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        padding: 0.75rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-logout:hover {
+        background: rgba(239, 68, 68, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .btn-edit {
+        background: var(--surface-hover);
+        color: var(--text-main);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.75rem 2rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-edit:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="avatar-wrapper">
+                {{ user.username[0] | upper }}
+            </div>
+            <h1 class="profile-name">{{ user.username }}</h1>
+            <span class="profile-role">Administrator</span>
+        </div>
+
+        <div class="profile-details">
+            <div class="detail-item">
+                <div class="detail-label">Username</div>
+                <div class="detail-value">{{ user.username }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Account Created</div>
+                <div class="detail-value">{{ user.created_at.strftime('%B %d, %Y') }}</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Status</div>
+                <div class="detail-value" style="color: #10b981;">● Active</div>
+            </div>
+            <div class="detail-item">
+                <div class="detail-label">Account ID</div>
+                <div class="detail-value">#{{ user.id }}</div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{{ url_for('admin.logout') }}" class="btn-logout">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+# Smart College Student Assistance Portal
+# Python Dependencies
+
+# Flask Core
+flask>=3.0.0
+flask-sqlalchemy>=3.1.0
+flask-login>=0.6.0
+werkzeug>=3.0.0
+python-dotenv>=1.0.0
+
+# Face Recognition (Easy Install - No dlib required!)
+deepface>=0.0.79
+tf-keras>=2.15.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+
+# RAG Pipeline
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.0
+
+# Groq Cloud AI
+groq>=0.4.0
+
+# PDF Generation
+reportlab>=4.0.0
+# Production Server
+gunicorn>=21.2.0

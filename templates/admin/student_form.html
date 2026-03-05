@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ action }} Data | J.A.R.V.I.S{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto; padding-bottom: 4rem;">
+    <div style="margin-bottom: 3rem;">
+        <h1
+            style="font-size: 2.5rem; background: var(--grad-text); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">
+            {{ action }} Student Record
+        </h1>
+        <p style="color: var(--text-muted);">
+            {% if action == 'Add' %}
+            Populate the neural database with a new student identity.
+            {% else %}
+            Synchronize and update existing student metadata.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="jarvis-card" style="padding: 3rem;">
+        <form method="POST" enctype="multipart/form-data">
+            <!-- Advanced Photo Upload -->
+            <div style="margin-bottom: 3rem; text-align: center;">
+                <label
+                    style="display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-main); margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Biometric
+                    Source</label>
+
+                <div id="dropZone"
+                    style="width: 180px; height: 180px; margin: 0 auto; background: var(--bg-page); border: 2px dashed var(--border); border-radius: var(--radius-xl); display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: var(--transition);">
+                    <input type="file" name="photo" id="photoInput" accept="image/*" style="display: none;">
+
+                    {% if student and student.image_path %}
+                    <img src="{{ url_for('static', filename=student.image_path) }}" id="imagePreview"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); opacity: 0; display: flex; align-items: center; justify-content: center; color: white; transition: var(--transition);"
+                        onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+                        <i class="fas fa-camera" style="font-size: 1.5rem;"></i>
+                    </div>
+                    {% else %}
+                    <div id="uploadPlaceholder" style="text-align: center; color: var(--text-dim);">
+                        <i class="fas fa-user-plus" style="font-size: 2rem; margin-bottom: 0.75rem;"></i>
+                        <p style="font-size: 0.75rem; font-weight: 600;">UPLOAD PHOTO</p>
+                    </div>
+                    <img id="imagePreview" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                    {% endif %}
+                </div>
+                <p style="color: var(--text-dim); font-size: 0.8rem; margin-top: 1rem;">Recommended: Square portrait,
+                    512x512px</p>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+                <!-- Identity Mapping -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div>
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Full
+                            Legal Name</label>
+                        <input type="text" name="name" value="{{ student.name if student else '' }}"
+                            placeholder="e.g., John Doe" required
+                            style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit;">
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Registry
+                            Number</label>
+                        <input type="text" name="roll_no" value="{{ student.roll_no if student else '' }}"
+                            placeholder="e.g., 21CSE001" required
+                            style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit;">
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Academic
+                            Department</label>
+                        <select name="department" required
+                            style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit; cursor: pointer;">
+                            <option value="">Select Wing</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept }}" {% if student and student.department==dept %}selected{% endif %}>
+                                {{ dept }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Contact & Logistics -->
+                <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                    <div>
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Current
+                            Year</label>
+                        <select name="year" required
+                            style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit; cursor: pointer;">
+                            <option value="">Level</option>
+                            {% for y in [1, 2, 3, 4] %}
+                            <option value="{{ y }}" {% if student and student.year==y %}selected{% endif %}>Year {{ y }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Comm
+                            Channel (Email)</label>
+                        <input type="email" name="email" value="{{ student.email if student else '' }}"
+                            placeholder="student@edu.com"
+                            style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit;">
+                    </div>
+                    <div>
+                        <label
+                            style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Access
+                            line (Phone)</label>
+                        <input type="tel" name="phone" value="{{ student.phone if student else '' }}"
+                            placeholder="+91 ..."
+                            style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Professional DNA -->
+            <div style="margin-bottom: 1.5rem;">
+                <label
+                    style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Technical
+                    DNA (Skills)</label>
+                <input type="text" name="skills" value="{{ student.skills|join(', ') if student else '' }}"
+                    placeholder="Skill vectors separated by commas..."
+                    style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit;">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label
+                    style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Project
+                    Manifest</label>
+                <textarea name="projects" rows="2" placeholder="Primary engineering projects..."
+                    style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit; resize: vertical;">{{ student.projects|join(', ') if student else '' }}</textarea>
+            </div>
+
+            <div style="margin-bottom: 3rem;">
+                <label
+                    style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--text-dim); margin-bottom: 0.5rem; text-transform: uppercase;">Field
+                    Deployment (Internships)</label>
+                <textarea name="internships" rows="2" placeholder="Professional workplace history..."
+                    style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-page); border: 1px solid var(--border); border-radius: var(--radius-md); color: var(--text-main); font-family: inherit; resize: vertical;">{{ student.internships|join(', ') if student else '' }}</textarea>
+            </div>
+
+            <!-- Command Controls -->
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary"
+                    style="flex: 2; padding: 1.25rem; justify-content: center; font-size: 1.1rem;">
+                    <i class="fas fa-save" style="margin-right: 0.5rem;"></i> {% if action == 'Add' %}Create Identity{%
+                    else %}Sync Record{% endif %}
+                </button>
+                <a href="{{ url_for('admin.students') }}" class="btn"
+                    style="flex: 1; justify-content: center; border: 1px solid var(--border); background: var(--bg-page);">
+                    Abort
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const photoInput = document.getElementById('photoInput');
+    const dropZone = document.getElementById('dropZone');
+    const imagePreview = document.getElementById('imagePreview');
+    const placeholder = document.getElementById('uploadPlaceholder');
+
+    dropZone.addEventListener('click', () => photoInput.click());
+
+    photoInput.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                if (placeholder) placeholder.style.display = 'none';
+            }
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--primary)';
+        dropZone.style.background = 'rgba(99, 102, 241, 0.05)';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+        dropZone.style.borderColor = '';
+        dropZone.style.background = '';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        photoInput.files = e.dataTransfer.files;
+        photoInput.dispatchEvent(new Event('change'));
+    });
+</script>
+{% endblock %}
