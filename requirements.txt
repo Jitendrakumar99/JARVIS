@@ -9,10 +9,12 @@ werkzeug>=3.0.0
 python-dotenv>=1.0.0
 
 # Face Recognition (Easy Install - No dlib required!)
-tensorflow>=2.14.0
+tensorflow>=2.15.0
+tf-keras>=2.15.0
 deepface>=0.0.79
 opencv-python-headless>=4.8.0
 numpy>=1.24.0
+psycopg2-binary>=2.9.9
 
 # RAG Pipeline
 sentence-transformers>=2.2.0

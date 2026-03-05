@@ -22,16 +22,13 @@ pyvenv.cfg
 pip-selfcheck.json
 pip-log.txt
 
-# Databases
-*.db
-*.sqlite3
 
 # Environment variables
 .env
 .flaskenv
 
 # Flask
-instance/
+# instance/ (uncommented to allow database sharing)
 .webassets-cache
 
 # IDEs
