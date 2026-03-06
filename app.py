@@ -5,10 +5,12 @@ Main Application Entry Point
 import os
 
 # Optimize for low-memory environments (Render Free Tier)
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Minimal logging
-os.environ['OMP_NUM_THREADS'] = '1'       # Limit threads to save RAM
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['OMP_NUM_THREADS'] = '1'
 os.environ['TF_NUM_INTRAOP_THREADS'] = '1'
 os.environ['TF_NUM_INTEROP_THREADS'] = '1'
+os.environ['MALLOC_TRIM_THRESHOLD_'] = '100000' # Force memory release back to OS
+os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true' # Even if it's CPU version, it helps
 
 from flask import Flask, render_template, redirect, url_for
 from flask_login import LoginManager

@@ -9,7 +9,8 @@ werkzeug>=3.0.0
 python-dotenv>=1.0.0
 
 # Face Recognition (Easy Install - No dlib required!)
-tensorflow>=2.15.0
+# Face Recognition (Lighter weight for Render RAM limits)
+tensorflow-cpu>=2.15.0
 tf-keras>=2.15.0
 deepface>=0.0.79
 opencv-python-headless>=4.8.0
