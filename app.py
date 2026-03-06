@@ -11,6 +11,8 @@ os.environ['TF_NUM_INTRAOP_THREADS'] = '1'
 os.environ['TF_NUM_INTEROP_THREADS'] = '1'
 os.environ['MALLOC_TRIM_THRESHOLD_'] = '100000' # Force memory release back to OS
 os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true' # Even if it's CPU version, it helps
+os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1' # Silence HF warnings
+os.environ['HF_HUB_DISABLE_TELEMETRY'] = '1'
 
 from flask import Flask, render_template, redirect, url_for
 from flask_login import LoginManager

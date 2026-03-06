@@ -14,7 +14,9 @@ class FaceEngine:
     """Face recognition engine using DeepFace"""
     
     def __init__(self):
-        self.model_name = "VGG-Face"  # Options: VGG-Face, Facenet, OpenFace, DeepFace, ArcFace
+        # Facenet is much lighter than VGG-Face (~90MB vs 500MB+)
+        # This is critical for Render Free Tier (512MB limit)
+        self.model_name = "Facenet"  
         self.distance_metric = "cosine"
         self.threshold = 0.4  # Lower = more strict
     
