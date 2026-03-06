@@ -3,6 +3,13 @@ Smart College Student Assistance Portal
 Main Application Entry Point
 """
 import os
+
+# Optimize for low-memory environments (Render Free Tier)
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Minimal logging
+os.environ['OMP_NUM_THREADS'] = '1'       # Limit threads to save RAM
+os.environ['TF_NUM_INTRAOP_THREADS'] = '1'
+os.environ['TF_NUM_INTEROP_THREADS'] = '1'
+
 from flask import Flask, render_template, redirect, url_for
 from flask_login import LoginManager
 from config import config
