@@ -18,7 +18,7 @@ class FaceEngine:
         # This is critical for Render Free Tier (512MB limit)
         self.model_name = "Facenet"  
         self.distance_metric = "cosine"
-        self.threshold = 0.4  # Lower = more strict
+        self.threshold = 0.6  # Increased to 0.6 for better matching of different images of same person
     
     def get_face_embedding(self, image_path):
         """
@@ -69,6 +69,12 @@ class FaceEngine:
             return False, 1.0
         
         try:
+            # Verify shapes match
+            if known_embedding.shape != unknown_embedding.shape:
+                print(f"Error: Embedding shape mismatch. Stored: {known_embedding.shape}, New: {unknown_embedding.shape}")
+                print("Suggestion: Re-run the embedding update script if you changed models.")
+                return False, 1.0
+            
             # Calculate cosine distance
             dot_product = np.dot(known_embedding, unknown_embedding)
             norm1 = np.linalg.norm(known_embedding)
@@ -106,8 +112,7 @@ class FaceEngine:
         search_embedding = self.get_face_embedding(image_path)
         
         if search_embedding is None:
-            print("No face found in search image")
-            return None
+            return None, 0, "NO_FACE_IN_SEARCH_IMAGE"
         
         best_match = None
         best_distance = float('inf')
@@ -121,6 +126,7 @@ class FaceEngine:
                     student.face_embedding, 
                     search_embedding
                 )
+                print(f"DEBUG: Comparing with {student.name}, Distance: {distance:.4f}")
                 
                 if distance < best_distance and distance <= self.threshold:
                     best_distance = distance
@@ -133,9 +139,9 @@ class FaceEngine:
         if best_match:
             # Convert distance to confidence (0-100%)
             confidence = round((1 - best_distance) * 100, 2)
-            return best_match, confidence
+            return best_match, confidence, None
         
-        return None
+        return None, 0, "NO_MATCH_FOUND"
     
     def verify_faces(self, img1_path, img2_path):
         """

@@ -77,18 +77,20 @@ def search_by_image():
             
             # Find matching student
             fe = get_face_engine()
-            match = fe.find_matching_student(temp_path, students)
+            student, confidence, error_code = fe.find_matching_student(temp_path, students)
             
             # Clean up temp file
             os.remove(temp_path)
             
-            if match:
-                student, confidence = match
+            if student:
                 return render_template('explore/result.html',
                                      student=student,
                                      confidence=confidence)
             else:
-                flash('No matching student found. Please try with a clearer image showing the face.', 'warning')
+                if error_code == "NO_FACE_IN_SEARCH_IMAGE":
+                    flash('Neural Vision Error: No face detected in the uploaded image. Please ensure your face is clearly visible.', 'error')
+                else:
+                    flash('Neural Match Failed: No matching student found in the database directory.', 'warning')
                 return redirect(url_for('student.explore'))
                 
         except Exception as e:

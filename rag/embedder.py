@@ -20,10 +20,12 @@ class TextEmbedder:
         """
         self.model_name = model_name
         self.model = None
-        self._load_model()
     
     def _load_model(self):
         """Load the embedding model"""
+        if self.model is not None:
+            return
+        
         if not SENTENCE_TRANSFORMERS_AVAILABLE:
             print("Sentence transformers not available")
             return
@@ -46,6 +48,7 @@ class TextEmbedder:
         Returns:
             numpy array of embeddings
         """
+        self._load_model()
         if self.model is None:
             # Return random embedding as fallback
             return np.random.rand(384).astype(np.float32)
@@ -67,6 +70,7 @@ class TextEmbedder:
         Returns:
             numpy array of embeddings (n_texts x embedding_dim)
         """
+        self._load_model()
         if self.model is None:
             return np.random.rand(len(texts), 384).astype(np.float32)
         

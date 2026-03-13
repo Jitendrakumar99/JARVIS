@@ -90,7 +90,10 @@ class Student(db.Model):
     
     @face_embedding.setter
     def face_embedding(self, value):
-        self._face_embedding = pickle.dumps(value) if value is not None else None
+        if value is not None:
+            self._face_embedding = pickle.dumps(value)
+        else:
+            self._face_embedding = None
     
     @property
     def text_embedding(self):
@@ -98,7 +101,10 @@ class Student(db.Model):
     
     @text_embedding.setter
     def text_embedding(self, value):
-        self._text_embedding = pickle.dumps(value) if value is not None else None
+        if value is not None:
+            self._text_embedding = pickle.dumps(value)
+        else:
+            self._text_embedding = None
     
     def to_dict(self):
         """Convert student to dictionary for API responses"""

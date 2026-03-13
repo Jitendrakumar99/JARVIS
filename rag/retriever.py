@@ -63,7 +63,7 @@ class StudentRetriever:
             # Store embeddings for fallback
             self.embeddings = embeddings
     
-    def retrieve(self, query, top_k=5, threshold=0.5):
+    def retrieve(self, query, top_k=5, threshold=0.1):
         """
         Retrieve top-k relevant students for a query
         
@@ -119,7 +119,7 @@ class StudentRetriever:
             # Fallback: brute force similarity search
             return self._fallback_search(query_embedding[0], students, top_k, threshold)
     
-    def _fallback_search(self, query_embedding, students, top_k, threshold=0.5):
+    def _fallback_search(self, query_embedding, students, top_k, threshold=0.1):
         """Fallback search without FAISS"""
         similarities = []
         
