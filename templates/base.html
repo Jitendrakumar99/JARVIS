@@ -24,7 +24,7 @@
     {% block extra_css %}{% endblock %}
 </head>
 
-<body>
+<body class="{% block body_class %}{% endblock %}">
     <!-- Navigation -->
     <nav class="navbar">
         <div class="nav-container">
@@ -110,6 +110,7 @@
     </main>
 
     <!-- Footer -->
+    {% block footer %}
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-logo">
@@ -129,6 +130,7 @@
             </p>
         </div>
     </footer>
+    {% endblock %}
 
     <!-- Scripts -->
     <script>

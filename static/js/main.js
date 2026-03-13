@@ -142,15 +142,20 @@ async function sendChatMessage() {
 
     // Show loading
     const loadingId = 'loading-' + Date.now();
-    messages.innerHTML += `
-        <div id="${loadingId}" class="chat-message assistant">
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = loadingId;
+    loadingDiv.className = 'chat-message assistant';
+    loadingDiv.innerHTML = `
+        <div class="message-content-wrapper">
+            <div class="jarvis-logo-small">J</div>
             <div class="loading">
                 <div class="loading-spinner"></div>
                 <span>Thinking...</span>
             </div>
         </div>
     `;
-    messages.scrollTop = messages.scrollHeight;
+    messages.appendChild(loadingDiv);
+    scrollToBottom();
 
     try {
         const response = await fetch('/chat/query', {
@@ -182,9 +187,30 @@ function addChatMessage(content, type) {
     const messages = document.getElementById('chatMessages');
     const div = document.createElement('div');
     div.className = `chat-message ${type}`;
-    div.innerHTML = formatMessage(content);
+    
+    if (type === 'assistant') {
+        div.innerHTML = `
+            <div class="message-content-wrapper">
+                <div class="jarvis-logo-small">J</div>
+                <div class="message-text">${formatMessage(content)}</div>
+            </div>
+        `;
+    } else {
+        div.innerHTML = `<div class="message-text">${formatMessage(content)}</div>`;
+    }
+    
     messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
+    scrollToBottom();
+}
+
+function scrollToBottom() {
+    const messages = document.getElementById('chatMessages');
+    if (messages) {
+        messages.scrollTo({
+            top: messages.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
 }
 
 function formatMessage(text) {

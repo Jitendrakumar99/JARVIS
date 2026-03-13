@@ -5,6 +5,7 @@ from flask import Blueprint, render_template, request, jsonify
 from models import db, Student
 from rag.retriever import StudentRetriever
 from rag.groq_client import GroqClient
+from sqlalchemy import or_, cast, String
 
 chat_bp = Blueprint('chat', __name__)
 
@@ -60,37 +61,87 @@ def query():
             if exact_student:
                 relevant_students = [exact_student]
         
+        # New Step 0.5: Direct Name Match (Prevents RAG noise for specific names)
+        if not relevant_students and len(user_query_clean) >= 3:
+            # Check for exact name match or name starting with query
+            name_matches = Student.query.filter(
+                or_(
+                    Student.name.ilike(user_query_clean),
+                    Student.name.ilike(f"{user_query_clean} %"),
+                    Student.name.ilike(f"% {user_query_clean}")
+                )
+            ).limit(5).all()
+            if name_matches:
+                relevant_students = name_matches
+        
         # Step 1: Normal Retrieval (if no exact identifier match found or we want more context)
         if not relevant_students:
             ret = get_retriever()
-            relevant_students = ret.retrieve(user_query, top_k=50, threshold=0.3)
+            relevant_students = ret.retrieve(user_query, top_k=50, threshold=0.25) # Slightly stricter to reduce noise
             
             # Determine if we need keyword fallback
             is_aggregate = any(w in user_query.lower() for w in ['count', 'total', 'how many', 'all', 'list', 'show'])
             
             if len(relevant_students) < 5 or is_aggregate:
                 # Clean keywords for matching
-                search_stop_words = {'search', 'find', 'student', 'students', 'show', 'me', 'all', 'from', 'list', 'the', 'of', 'in', 'who', 'is', 'a'}
-                keywords = [w.lower() for w in user_query.split() if w.lower() not in search_stop_words]
+                search_stop_words = {
+                    'search', 'find', 'student', 'students', 'show', 'me', 'all', 'from', 
+                    'list', 'the', 'of', 'in', 'who', 'is', 'a', 'give', 'want', 'need', 
+                    'top', 'best', 'first', 'get', 'one', 'come', 'for', 'with', 'please',
+                    'year', 'years'
+                }
+                raw_keywords = [w.lower().strip('.,!?') for w in user_query.split()]
+                keywords = []
+                for w in raw_keywords:
+                    if w in search_stop_words:
+                        continue
+                    # Handle ordinal numbers like 4th, 3rd, etc.
+                    import re
+                    match = re.match(r'^(\d+)(st|nd|rd|th)$', w)
+                    if match:
+                        keywords.append(match.group(1))
+                    elif len(w) > 2: # Ignore very short words like 'i', '5' (unless it's an ordinal)
+                        keywords.append(w)
                 
-                from sqlalchemy import or_, cast, String
+                # Dedicated Year Filter logic
+                year_filter = None
+                year_match = re.search(r'(\d+)(?:st|nd|rd|th)?\s*year|year\s*(\d+)', user_query.lower())
+                if year_match:
+                    year_val = year_match.group(1) or year_match.group(2)
+                    year_filter = Student.year == int(year_val)
+                    # Remove the year number from keywords to avoid redundant broad matching
+                    if year_val in keywords:
+                        keywords.remove(year_val)
+                
                 existing_ids = {s.id for s in relevant_students}
                 
                 if is_aggregate and not keywords:
                      keyword_results = Student.query.limit(50).all()
-                elif keywords:
-                    filters = []
+                elif keywords or year_filter:
+                    from sqlalchemy import and_
+                    keyword_matches = []
+                    
+                    if year_filter is not None:
+                        keyword_matches.append(year_filter)
+                        
                     for keyword in keywords:
-                        filters.append(Student.name.ilike(f'%{keyword}%'))
-                        filters.append(Student.roll_no.ilike(f'%{keyword}%'))
-                        filters.append(Student.department.ilike(f'%{keyword}%'))
-                        filters.append(Student._skills.ilike(f'%{keyword}%'))
-                        filters.append(Student._projects.ilike(f'%{keyword}%'))
-                        filters.append(cast(Student.year, String).ilike(f'%{keyword}%'))
+                        keyword_matches.append(or_(
+                            Student.name.ilike(f'%{keyword}%'),
+                            Student.roll_no.ilike(f'%{keyword}%'),
+                            Student.department.ilike(f'%{keyword}%'),
+                            Student._skills.ilike(f'%{keyword}%'),
+                            Student._projects.ilike(f'%{keyword}%'),
+                            cast(Student.year, String) == keyword
+                        ))
                     
                     # Limit keyword results to keep context clean
                     kw_limit = 50 if is_aggregate else 10
-                    keyword_results = Student.query.filter(or_(*filters)).limit(kw_limit).all()
+                    # Use AND across different keywords for better precision
+                    query_obj = Student.query
+                    if keyword_matches:
+                        query_obj = query_obj.filter(and_(*keyword_matches))
+                    
+                    keyword_results = query_obj.limit(kw_limit).all()
                 else:
                     keyword_results = []
 
@@ -100,8 +151,21 @@ def query():
         
         # Step 2: Build context from students
         if relevant_students:
+            # Detect numeric limits (e.g., "top 5", "first 3")
+            import re
+            limit_match = re.search(r'(?:top|best|first|show)\s+(\d+)', user_query.lower())
+            query_limit = int(limit_match.group(1)) if limit_match else None
+            
             # We'll provide up to 30 records to the context for aggregate results, 10 for specific ones.
-            ctx_limit = 30 if any(w in user_query.lower() for w in ['all', 'show', 'list', 'every', 'count']) else 10
+            is_aggregate_query = any(w in user_query.lower() for w in ['all', 'show', 'list', 'every', 'count'])
+            
+            if query_limit:
+                ctx_limit = query_limit
+            elif is_aggregate_query:
+                ctx_limit = 30
+            else:
+                ctx_limit = 10
+                
             context_students = relevant_students[:ctx_limit]
             
             context = f"Total matching students found: {len(relevant_students)}\n"
